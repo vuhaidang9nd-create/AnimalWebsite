@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thế Giới Động Vật - Animal Kingdom</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Be Vietnam Pro -->
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Be Vietnam Pro"', 'sans-serif'],
+                    },
+                    colors: {
+                        emerald: {
+                            850: '#064e3b',
+                            950: '#022c22',
+                        },
+                        amber: {
+                            450: '#f59e0b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Styles & Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #059669;
+        }
+        /* Card Hover Animations */
+        .animal-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .animal-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col custom-scrollbar selection:bg-emerald-500 selection:text-white">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="sticky top-0 z-40 glass-nav text-white shadow-lg transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logo & Brand -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="resetFilters()">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/20">
+                        <i class="fa-solid font-black fa-paw text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent block">
+                            ANIMAL KINGDOM
+                        </span>
+                        <span class="text-xs font-medium text-slate-300 tracking-widest uppercase block -mt-1">Thế Giới Động Vật</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Search Bar -->
+                <div class="hidden md:flex flex-1 max-w-md mx-8">
+                    <div class="relative w-full">
+                        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Tìm kiếm tên loài, đặc điểm..." 
+                            class="w-full pl-11 pr-4 py-2.5 rounded-full bg-slate-800/80 border border-slate-700 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition text-sm">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+                        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-white p-1">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Stats & Mobile Toggle -->
+                <div class="flex items-center space-x-4">
+                    <!-- Favorite Count Button -->
+                    <button onclick="toggleFavoritesView()" id="favNavBtn" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-full transition text-amber-400">
+                        <i class="fa-solid fa-heart text-red-500"></i>
+                        <span class="text-xs font-bold text-white hidden sm:inline">Yêu thích:</span>
+                        <span id="favBadge" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                    </button>
+
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 hover:text-white p-2 rounded-lg focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl" id="menuIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Search Bar (Collapsible/Visible) -->
+            <div class="md:hidden pb-4 pt-1">
+                <div class="relative w-full">
+                    <input type="text" id="mobileSearchInput" oninput="handleMobileSearch()" placeholder="Tìm kiếm loài động vật..." 
+                        class="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-full text-slate-100 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO BANNER SECTION -->
+    <section class="relative bg-slate-900 text-white py-20 lg:py-28 overflow-hidden">
+        <!-- Background Image with Overlay -->
+        <div class="absolute inset-0 z-0 opacity-40">
+            <img src="https://images.unsplash.com/photo-1534567153574-2b12153a87f0?q=80&w=2000&auto=format&fit=crop" 
+                 alt="Wild Life Banner" 
+                 class="w-full h-full object-cover"
+                 onerror="this.src='https://placehold.co/1920x1080/0f172a/ffffff?text=Nature+Background'">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent z-0"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-transparent to-slate-900/40 z-0"></div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
+            <div class="max-w-2xl">
+                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-4">
+                    <i class="fa-solid fa-earth-americas"></i> Khám Phá Tự Nhiên Kỳ Diệu
+                </span>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight mb-6">
+                    Hành Trình Khám Phá <br>
+                    <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">Muôn Loài Động Vật</span>
+                </h1>
+                <p class="text-slate-300 text-base sm:text-lg mb-8 font-light leading-relaxed">
+                    Tìm hiểu thông tin chi tiết, đặc điểm sinh học, môi trường sống và tập tính của hàng trăm loài động vật đa dạng trên hành tinh chúng ta.
+                </p>
+                
+                <div class="flex flex-wrap gap-4 justify-center sm:justify-start">
+                    <a href="#speciesSection" class="px-7 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold shadow-lg shadow-emerald-500/30 transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                        <span>Khám phá ngay</span>
+                        <i class="fa-solid fa-arrow-down text-sm"></i>
+                    </a>
+                    <button onclick="filterRandomAnimal()" class="px-7 py-3.5 rounded-full bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-slate-200 font-semibold backdrop-blur-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-shuffle text-amber-400"></i>
+                        <span>Loài ngẫu nhiên</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Strip -->
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-2xl bg-slate-800/50 backdrop-blur-md border border-slate-700/50">
+                <div class="text-center p-3">
+                    <div class="text-2xl sm:text-3xl font-bold text-emerald-400">8.7M+</div>
+                    <div class="text-xs text-slate-400 mt-1">Loài động vật trên Trái Đất</div>
+                </div>
+                <div class="text-center p-3 border-l border-slate-700/50">
+                    <div class="text-2xl sm:text-3xl font-bold text-teal-400">5+</div>
+                    <div class="text-xs text-slate-400 mt-1">Phân lớp sinh học chính</div>
+                </div>
+                <div class="text-center p-3 border-l border-slate-700/50">
+                    <div class="text-2xl sm:text-3xl font-bold text-amber-400">40,000+</div>
+                    <div class="text-xs text-slate-400 mt-1">Loài đang bị đe dọa (IUCN)</div>
+                </div>
+                <div class="text-center p-3 border-l border-slate-700/50">
+                    <div class="text-2xl sm:text-3xl font-bold text-sky-400">100%</div>
+                    <div class="text-xs text-slate-400 mt-1">Đam mê tự nhiên</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT AREA -->
+    <main id="speciesSection" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        <!-- CATEGORY FILTERS & BAR -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+                    <span>Danh Mục Loài</span>
+                    <span id="resultCount" class="text-sm font-semibold text-emerald-700 bg-emerald-100 border border-emerald-200 px-3 py-1 rounded-full">8 loài</span>
+                </h2>
+                <p class="text-slate-500 text-sm mt-1">Lọc các loài động vật theo nhóm sinh học chính</p>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+                <button onclick="filterCategory('all')" data-cat="all" class="filter-btn active-filter px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-emerald-600 text-white shadow-md shadow-emerald-600/20">
+                    <i class="fa-solid fa-border-all mr-1.5"></i>Tất cả
+                </button>
+                <button onclick="filterCategory('Thú')" data-cat="Thú" class="filter-btn px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                    <i class="fa-solid fa-hippo mr-1.5 text-amber-600"></i>Thú
+                </button>
+                <button onclick="filterCategory('Chim')" data-cat="Chim" class="filter-btn px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                    <i class="fa-solid fa-crow mr-1.5 text-sky-600"></i>Chim
+                </button>
+                <button onclick="filterCategory('Bò sát')" data-cat="Bò sát" class="filter-btn px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                    <i class="fa-solid fa-dragon mr-1.5 text-emerald-600"></i>Bò sát
+                </button>
+                <button onclick="filterCategory('Động vật biển')" data-cat="Động vật biển" class="filter-btn px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                    <i class="fa-solid fa-fish-fins mr-1.5 text-blue-600"></i>Sinh vật biển
+                </button>
+                <button onclick="filterCategory('Côn trùng')" data-cat="Côn trùng" class="filter-btn px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-white text-slate-600 hover:bg-slate-100 border border-slate-200">
+                    <i class="fa-solid fa-bug mr-1.5 text-purple-600"></i>Côn trùng
+                </button>
+            </div>
+        </div>
+
+        <!-- ANIMAL CARDS GRID -->
+        <div id="animalGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
+            <!-- Dynamic items rendered by JavaScript -->
+        </div>
+
+        <!-- EMPTY STATE (SHOW WHEN NO RESULTS FOUND) -->
+        <div id="emptyState" class="hidden py-16 text-center">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-3xl">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-700 mb-2">Không tìm thấy loài động vật nào</h3>
+            <p class="text-slate-500 text-sm max-w-md mx-auto mb-6">Rất tiếc, chúng tôi không tìm thấy kết quả phù hợp với từ khóa hoặc bộ lọc của bạn.</p>
+            <button onclick="resetFilters()" class="px-5 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-full hover:bg-emerald-700 transition">
+                Đặt lại bộ lọc
+            </button>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 pt-12 pb-8 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-slate-800">
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white">
+                            <i class="fa-solid fa-paw text-lg"></i>
+                        </div>
+                        <span class="text-lg font-bold text-white tracking-wider">ANIMAL KINGDOM</span>
+                    </div>
+                    <p class="text-sm text-slate-400 leading-relaxed max-w-md mb-4">
+                        Website tổng hợp kiến thức trực quan về thế giới động vật. Sứ mệnh của chúng tôi là nâng cao nhận thức cộng đồng về bảo tồn đa dạng sinh học và bảo vệ môi trường tự nhiên.
+                    </p>
+                    <div class="flex space-x-3">
+                        <a href="#" class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 hover:bg-emerald-500 hover:text-white transition"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 hover:bg-emerald-500 hover:text-white transition"><i class="fa-brands fa-youtube"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 hover:bg-emerald-500 hover:text-white transition"><i class="fa-brands fa-twitter"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Liên kết nhanh</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" onclick="filterCategory('all')" class="hover:text-emerald-400 transition">Tất cả động vật</a></li>
+                        <li><a href="#" onclick="filterCategory('Thú')" class="hover:text-emerald-400 transition">Động vật có vú</a></li>
+                        <li><a href="#" onclick="filterCategory('Động vật biển')" class="hover:text-emerald-400 transition">Sinh vật biển</a></li>
+                        <li><a href="#" onclick="toggleFavoritesView()" class="hover:text-emerald-400 transition">Danh sách yêu thích</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Bảo tồn sinh thái</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-3">
+                        Hãy tham gia bảo vệ động vật hoang dã bằng cách không sử dụng sản phẩm từ động vật quý hiếm.
+                    </p>
+                    <div class="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-heart"></i>
+                        <span>Cùng chung tay bảo vệ tự nhiên</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6 text-center text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p>&copy; 2026 Animal Kingdom. Thiết kế cho mục đích học tập & bảo tồn.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="hover:underline">Điều khoản</a>
+                    <a href="#" class="hover:underline">Quyền riêng tư</a>
+                    <a href="#" class="hover:underline">Liên hệ</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ANIMAL DETAIL MODAL -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 transition-opacity">
+        <div class="relative bg-white rounded-3xl shadow-2xl max-w-3xl w-full overflow-hidden max-h-[90vh] flex flex-col transform transition-all">
+            
+            <!-- Close Button -->
+            <button onclick="closeModal()" class="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-900/60 hover:bg-slate-900 text-white flex items-center justify-center transition backdrop-blur-md">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Modal Body (Scrollable) -->
+            <div class="overflow-y-auto custom-scrollbar">
+                <!-- Modal Banner Image -->
+                <div class="relative h-64 sm:h-80 w-full bg-slate-200">
+                    <img id="modalImage" src="" alt="" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+                    
+                    <div class="absolute bottom-4 left-6 right-6 text-white">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span id="modalCategory" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500 text-white shadow-md"></span>
+                            <span id="modalStatus" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500 text-white shadow-md"></span>
+                        </div>
+                        <h3 id="modalNameVn" class="text-3xl sm:text-4xl font-extrabold text-white"></h3>
+                        <p id="modalNameEn" class="text-sm sm:text-base italic text-emerald-300 font-light"></p>
+                    </div>
+                </div>
+
+                <!-- Modal Content -->
+                <div class="p-6 sm:p-8 space-y-6">
+                    
+                    <!-- Key Characteristics Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <div class="text-center p-2">
+                            <i class="fa-solid fa-tree-city text-emerald-600 text-lg mb-1 block"></i>
+                            <span class="text-xs text-slate-400 block">Môi trường sống</span>
+                            <span id="modalHabitat" class="text-sm font-semibold text-slate-800"></span>
+                        </div>
+                        <div class="text-center p-2 border-l border-slate-200">
+                            <i class="fa-solid fa-utensils text-amber-600 text-lg mb-1 block"></i>
+                            <span class="text-xs text-slate-400 block">Thức ăn</span>
+                            <span id="modalDiet" class="text-sm font-semibold text-slate-800"></span>
+                        </div>
+                        <div class="text-center p-2 sm:border-l border-slate-200">
+                            <i class="fa-solid fa-hourglass-half text-sky-600 text-lg mb-1 block"></i>
+                            <span class="text-xs text-slate-400 block">Tuổi thọ</span>
+                            <span id="modalLifespan" class="text-sm font-semibold text-slate-800"></span>
+                        </div>
+                        <div class="text-center p-2 border-l border-slate-200">
+                            <i class="fa-solid fa-ruler-combined text-purple-600 text-lg mb-1 block"></i>
+                            <span class="text-xs text-slate-400 block">Kích thước</span>
+                            <span id="modalSize" class="text-sm font-semibold text-slate-800"></span>
+                        </div>
+                    </div>
+
+                    <!-- Description Section -->
+                    <div>
+                        <h4 class="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-info text-emerald-600"></i>
+                            <span>Tổng quan & Tập tính</span>
+                        </h4>
+                        <p id="modalDescription" class="text-slate-600 leading-relaxed text-sm sm:text-base"></p>
+                    </div>
+
+                    <!-- Unique Fun Fact -->
+                    <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-amber-400 text-slate-900 flex-shrink-0 flex items-center justify-center font-bold text-sm">
+                            💡
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-bold uppercase tracking-wider text-amber-800">Có thể bạn chưa biết?</h5>
+                            <p id="modalFunFact" class="text-sm text-amber-900 font-medium mt-0.5"></p>
+                        </div>
+                    </div>
+
+                    <!-- Footer Modal Action -->
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <button id="modalFavBtn" onclick="" class="flex items-center gap-2 px-5 py-2.5 rounded-full border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition">
+                            <i class="fa-solid fa-heart text-slate-400"></i>
+                            <span>Thêm vào yêu thích</span>
+                        </button>
+                        <button onclick="closeModal()" class="px-6 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-md transition">
+                            Đóng cửa sổ
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Database of Animals
+        const animalsData = [
+            {
+                id: 'su-tu',
+                nameVn: 'Sư Tử',
+                nameEn: 'Panthera leo',
+                category: 'Thú',
+                status: 'Sắp nguy cấp',
+                statusColor: 'bg-amber-500',
+                image: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?q=80&w=800&auto=format&fit=crop',
+                shortDesc: 'Được mệnh danh là "Chúa tể sơn lâm", loài mèo lớn duy nhất sống theo đàn xã hội phức tạp.',
+                description: 'Sư tử là một trong những loài sinh vật có vú lớn nhất dòng họ Mèo. Sư tử đực nổi bật với chiếc bờm dày uy phong. Chúng là những sinh vật săn mồi hàng đầu, đóng vai trò vô cùng quan trọng trong việc cân bằng sinh thái tại các đồng cỏ và xavan Châu Phi.',
+                habitat: 'Đồng cỏ, Xavan Châu Phi',
+                diet: 'Ăn thịt (Linh dương, Ngựa vằn)',
+                lifespan: '10 - 14 năm',
+                size: '1.2m - 2.1m (Chiều dài)',
+                funFact: 'Tiếng rống của một con sư tử trưởng thành có thể nghe thấy từ khoảng cách xa đến 8 km!'
+            },
+            {
+                id: 'chim-canh-cut',
+                nameVn: 'Chim Cánh Cụt Hoàng Gia',
+                nameEn: 'Aptenodytes forsteri',
+                category: 'Chim',
+                status: 'Sắp nguy cấp',
+                statusColor: 'bg-amber-500',
+                image: 'https://images.unsplash.com/photo-1598439210625-5067c578f3f6?q=80&w=800&auto=format&fit=crop',
+                shortDesc: 'Loài chim cánh cụt cao nhất và nặng nhất trong tất cả các loài chim cánh cụt sống tại Nam Cực.',
+                description: 'Chim cánh cụt Hoàng Gia chịu đựng môi trường băng giá khắc nghiệt nhất Trái Đất. Chúng không biết bay nhưng lại là những tay bơi lội cừ khôi dưới đại dương băng giá. Con đực ấp trứng trên chân mình suốt mùa đông lạnh giá mà không ăn uống gì.',
+                habitat: 'Băng tuyết Nam Cực',
+                diet: 'Cá, Mực, Giáp xác',
+                lifespan: '20 - 25 năm',
+                size: '1.1m - 1.3m (Chiều cao)',
+                funFact: 'Chúng có thể lặn sâu xuống tới hơn 500 mét dưới biển và nín thở hơn 20 phút!'
+            },
+            {
+                id: 'ca-heo-xanh',
+                nameVn: 'Cá Mũi Heo / Cá Mèo Biển',
+                nameEn: 'Delphinidae',
+                category: 'Động vật biển',
+                status: 'Ít quan tâm',
+                statusColor: 'bg-emerald-500',
+                image: 'https://images.unsplash.com/photo-1570481662006-a3a1374699e8?q=80&w=800&auto=format&fit=crop',
+                shortDesc: 'Loài động vật có vú dưới biển nổi tiếng với sự thông minh, thân thiện và khả năng định vị bằng siêu âm.',
+                description: 'Cá heo là sinh vật biển thông minh vượt trội, có cấu trúc xã hội phức tạp và ngôn ngữ giao tiếp riêng bằng sóng âm. Chúng thường xuyên nhào lộn trên mặt nước và thể hiện sự tò mò đối với con người.',
+                habitat: 'Đại dương toàn cầu',
+                diet: 'Cá nhỏ, Mực',
+                lifespan: '40 - 50 năm',
+                size: '2m - 4m',
+                funFact: 'Cá heo chỉ ngủ với một nửa bán cầu não tại một thời điểm, mắt bên đối diện vẫn mở để cảnh giác kẻ thù.'
+            },
+            {
+                id: 'rong-komodo',
+                nameVn: 'Rồng Komodo',
+                nameEn: 'Varanus komodoensis',
+                category: 'Bò sát',
+                status: 'Nguy cấp',
+                statusColor: 'bg-rose-500',
+                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop',
+                shortDesc: 'Loài thằn lằn còn sống lớn nhất thế giới, sở hữu vết cấm chứa nọc độc nguy hiểm.',
+                description: 'Rồng Komodo là loài thằn lằn khổng lồ sinh sống tại các đảo thuộc Indonesia. Chúng là những kẻ săn mồi kiên nhẫn, sử dụng chiếc lưỡi chẻ đôi để đánh hơi con mồi từ xa hàng cây số.',
+                habitat: 'Đảo nhiệt đới Indonesia',
+                diet: 'Nai, Lợn rừng, Dê',
+                lifespan: '30 - 50 năm',
+                size: '2m - 3m',
+                funFact: 'Nước bọt của rồng Komodo chứa chất chống đông máu và nọc độc khiến vết thương con mồi không thể lành.'
+            },
+            {
+                id: 'buom-monarch',
+                nameVn: 'Bướm Chúa (Monarch)',
+                nameEn: 'Danaus plexippus',
+                category: 'Côn trùng',
+                status: 'Nguy cấp',
+                statusColor: 'bg-rose-500',
+                image: 'https://images.unsplash.com/photo-1557008075-7f2c5efa4cfd?q=80&w=800&auto=format&fit=crop',
+                shortDesc: 'Loài bướm nổi tiếng với hành trình di cư vĩ đại hàng nghìn kilômét xuyên Bắc Mỹ.',
+                description: 'Bướm Chúa sở hữu màu sắc cam đen rực rỡ báo hiệu cảnh báo độc tố cho kẻ thù. Hàng năm, hàng triệu con bướm thực hiện cuộc di cư kỷ lục từ Bắc Mỹ xuống Mexico để tránh mùa đông giá lạnh.',
+                habitat: 'Cánh đồng hoa, Rừng Bắc Mỹ',
+                diet: 'Mật hoa, Cây mỏ quạ',
+                lifespan: '2 - 6 tuần (thế hệ di cư sống tới 8 tháng)',
+                size: '8cm - 10cm (Sải cánh)',
+                funFact: 'Chúng là loài côn trùng duy nhất thực hiện chuyến di cư hai chiều dài tới 4.000 km mỗi năm!'
+            },
+            {
+                id: 'gau-trúc',
+                nameVn: 'Gấu Trúc Lớn',
+                nameEn: 'Ailuropoda melanoleuca',
+                category: 'Thú',
+                status: 'Sắp nguy cấp',
+                statusColor: 'bg-amber-500',
+                image: 'https://images.unsplash.com/photo-1564349683136-77e08dba1ef9?q=80&w=800&auto=format&fit=crop',
+                shortDesc: 'Biểu tượng quốc gia của Trung Quốc với bộ lông đen trắng đặc trưng và thói quen ăn trúc.',
+                description: 'Gấu trúc dành tới 12 giờ mỗi ngày chỉ để ăn trúc. Mặc dù thuộc họ ăn thịt, nhưng 99% khẩu phần ăn của gấu trúc là tre trúc. Chúng rất giỏi trèo cây và bơi lội.',
+                habitat: 'Rừng trúc vùng núi Trung Quốc',
+                diet: 'Tre, Trúc',
+                lifespan: '20 năm (Tự nhiên)',
+                size: '1.2m - 1.9m',
+                funFact: 'Gấu trúc mới sinh ra chỉ nhỏ bằng một thỏi son và có màu hồng hoàn toàn chưa có lông!'
+            },
+            {
+                id: 'dai-bàng-dau-hói',
+                nameVn: 'Đại Bàng Đầu Hói',
+                nameEn: 'Haliaeetus leucocephalus',
+                category: 'Chim',
+                status: 'Ít quan tâm',
+                statusColor: 'bg-emerald-500',
+                image: 'https://images.unsplash.com/photo-1611689342806-0863700ce1e4?q=80&w=800&auto=format&fit=crop',
+                shortDesc: 'Chúa tể bầu trời Bắc Mỹ với đôi mắt tinh anh và móng vuốt vô cùng sắc nhọn.',
+                description: 'Đại bàng đầu hói là loài chim săn mồi có kích thước lớn, biểu tượng của sức mạnh và tự do. Chúng xây dựng những chiếc tổ khổng lồ trên ngọn cây cao gần các nguồn nước lớn.',
+                habitat: 'Bờ sông, Hồ, Bờ biển Bắc Mỹ',
+                diet: 'Cá, Chim nước, Động vật nhỏ',
+                lifespan: '20 - 30 năm',
+                size: '1.8m - 2.3m (Sải cánh)',
+                funFact: 'Tổ đại bàng đầu hói lớn nhất từng ghi nhận nặng tới gần 3 tấn và sâu 4 mét!'
+            },
+            {
+                id: 'ca-voi-xanh',
+                nameVn: 'Cá Voi Xanh',
+                nameEn: 'Balaenoptera musculus',
+                category: 'Động vật biển',
+                status: 'Rất nguy cấp',
+                statusColor: 'bg-red-600',
+                image: 'https://images.unsplash.com/photo-1568430460464-02e340d046c8?q=80&w=800&auto=format&fit=crop',
+                shortDesc: 'Sinh vật lớn nhất từng tồn tại trong lịch sử Trái Đất, lớn hơn cả những loài khủng long lớn nhất.',
+                description: 'Cá voi xanh là gã khổng lồ dịu dàng của đại dương. Dù có kích thước đồ sộ, chúng chỉ ăn các sinh vật giáp xác nhỏ gọi là sinh vật phù du (loài giáp xác nhỏ krill). Lưỡi của một con cá voi xanh có thể nặng bằng một con voi.',
+                habitat: 'Mọi đại dương trên Trái Đất',
+                diet: 'Loài giáp xác nhỏ (Krill)',
+                lifespan: '80 - 90 năm',
+                size: '24m - 30m',
+                funFact: 'Quả tim của cá voi xanh to bằng một chiếc xe ô tô nhỏ và tiếng đập của nó có thể nghe thấy từ xa 3 km.'
+            }
+        ];
+
+        // State Management
+        let currentCategory = 'all';
+        let searchQuery = '';
+        let favorites = JSON.parse(localStorage.getItem('animal_favs')) || [];
+        let isShowingFavoritesOnly = false;
+
+        // DOM elements
+        const animalGrid = document.getElementById('animalGrid');
+        const emptyState = document.getElementById('emptyState');
+        const searchInput = document.getElementById('searchInput');
+        const mobileSearchInput = document.getElementById('mobileSearchInput');
+        const resultCount = document.getElementById('resultCount');
+        const favBadge = document.getElementById('favBadge');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+        // Init App
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAnimals();
+            updateFavBadge();
+        });
+
+        // Filter Function
+        function getFilteredData() {
+            return animalsData.filter(animal => {
+                const matchesCategory = (currentCategory === 'all') || (animal.category === currentCategory);
+                const matchesSearch = animal.nameVn.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                      animal.nameEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                      animal.shortDesc.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesFav = !isShowingFavoritesOnly || favorites.includes(animal.id);
+
+                return matchesCategory && matchesSearch && matchesFav;
+            });
+        }
+
+        // Render Cards Grid
+        function renderAnimals() {
+            const filtered = getFilteredData();
+            animalGrid.innerHTML = '';
+
+            resultCount.textContent = `${filtered.length} loài`;
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                animalGrid.classList.add('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                animalGrid.classList.remove('hidden');
+
+                filtered.forEach(animal => {
+                    const isFav = favorites.includes(animal.id);
+                    
+                    const card = document.createElement('div');
+                    card.className = 'animal-card bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-100 flex flex-col justify-between';
+                    
+                    card.innerHTML = `
+                        <div>
+                            <!-- Card Image Header -->
+                            <div class="relative h-48 sm:h-52 overflow-hidden bg-slate-100">
+                                <img src="${animal.image}" alt="${animal.nameVn}" 
+                                     class="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                                     onerror="this.src='https://placehold.co/600x400/0f172a/ffffff?text=${encodeURIComponent(animal.nameVn)}'">
+                                <div class="absolute top-3 left-3 flex gap-1.5 flex-wrap">
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-bold text-white bg-slate-900/70 backdrop-blur-md">
+                                        ${animal.category}
+                                    </span>
+                                </div>
+                                <button onclick="toggleFavorite(event, '${animal.id}')" 
+                                        class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-slate-400 hover:text-red-500 hover:scale-110 transition shadow-sm">
+                                    <i class="fa-solid fa-heart ${isFav ? 'text-red-500' : ''}"></i>
+                                </button>
+                            </div>
+
+                            <!-- Card Body -->
+                            <div class="p-5">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded text-white ${animal.statusColor}">
+                                        ${animal.status}
+                                    </span>
+                                </div>
+                                <h3 class="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition">
+                                    ${animal.nameVn}
+                                </h3>
+                                <p class="text-xs italic text-slate-400 mb-3">${animal.nameEn}</p>
+                                <p class="text-slate-600 text-xs line-clamp-3 leading-relaxed">
+                                    ${animal.shortDesc}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer -->
+                        <div class="px-5 pb-5 pt-2 border-t border-slate-50 flex items-center justify-between">
+                            <span class="text-xs text-slate-400 flex items-center gap-1">
+                                <i class="fa-solid fa-earth-oceania"></i> ${animal.habitat.split(',')[0]}
+                            </span>
+                            <button onclick="openModal('${animal.id}')" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 group">
+                                <span>Chi tiết</span>
+                                <i class="fa-solid fa-chevron-right text-[10px] transition-transform group-hover:translate-x-1"></i>
+                            </button>
+                        </div>
+                    `;
+                    animalGrid.appendChild(card);
+                });
+            }
+        }
+
+        // Category Filter Logic
+        function filterCategory(category) {
+            currentCategory = category;
+            isShowingFavoritesOnly = false;
+            
+            // Update Active UI Button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if(btn.dataset.cat === category) {
+                    btn.className = 'filter-btn active-filter px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-emerald-600 text-white shadow-md shadow-emerald-600/20';
+                } else {
+                    btn.className = 'filter-btn px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap bg-white text-slate-600 hover:bg-slate-100 border border-slate-200';
+                }
+            });
+
+            renderAnimals();
+        }
+
+        // Realtime Search Logic
+        function handleSearch() {
+            searchQuery = searchInput.value.trim();
+            mobileSearchInput.value = searchQuery;
+            clearSearchBtn.classList.toggle('hidden', searchQuery === '');
+            renderAnimals();
+        }
+
+        function handleMobileSearch() {
+            searchQuery = mobileSearchInput.value.trim();
+            searchInput.value = searchQuery;
+            renderAnimals();
+        }
+
+        function clearSearch() {
+            searchInput.value = '';
+            mobileSearchInput.value = '';
+            searchQuery = '';
+            clearSearchBtn.classList.add('hidden');
+            renderAnimals();
+        }
+
+        function resetFilters() {
+            currentCategory = 'all';
+            clearSearch();
+            isShowingFavoritesOnly = false;
+            filterCategory('all');
+        }
+
+        function filterRandomAnimal() {
+            const randomIndex = Math.floor(Math.random() * animalsData.length);
+            openModal(animalsData[randomIndex].id);
+        }
+
+        // Favorites System (LocalStorage)
+        function toggleFavorite(event, id) {
+            if (event) event.stopPropagation();
+            
+            const index = favorites.indexOf(id);
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(id);
+            }
+
+            localStorage.setItem('animal_favs', JSON.stringify(favorites));
+            updateFavBadge();
+            renderAnimals();
+        }
+
+        function updateFavBadge() {
+            favBadge.textContent = favorites.length;
+        }
+
+        function toggleFavoritesView() {
+            isShowingFavoritesOnly = !isShowingFavoritesOnly;
+            const favNavBtn = document.getElementById('favNavBtn');
+            
+            if (isShowingFavoritesOnly) {
+                favNavBtn.classList.add('ring-2', 'ring-red-500');
+            } else {
+                favNavBtn.classList.remove('ring-2', 'ring-red-500');
+            }
+
+            renderAnimals();
+        }
+
+        // MODAL LOGIC
+        function openModal(id) {
+            const animal = animalsData.find(a => a.id === id);
+            if (!animal) return;
+
+            document.getElementById('modalImage').src = animal.image;
+            document.getElementById('modalCategory').textContent = animal.category;
+            document.getElementById('modalStatus').textContent = animal.status;
+            document.getElementById('modalStatus').className = `px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white ${animal.statusColor}`;
+            
+            document.getElementById('modalNameVn').textContent = animal.nameVn;
+            document.getElementById('modalNameEn').textContent = animal.nameEn;
+            document.getElementById('modalHabitat').textContent = animal.habitat;
+            document.getElementById('modalDiet').textContent = animal.diet;
+            document.getElementById('modalLifespan').textContent = animal.lifespan;
+            document.getElementById('modalSize').textContent = animal.size;
+            document.getElementById('modalDescription').textContent = animal.description;
+            document.getElementById('modalFunFact').textContent = animal.funFact;
+
+            // Modal Fav Button setup
+            const modalFavBtn = document.getElementById('modalFavBtn');
+            const isFav = favorites.includes(animal.id);
+            
+            modalFavBtn.onclick = (e) => {
+                toggleFavorite(e, animal.id);
+                openModal(animal.id); // Refresh modal fav state
+            };
+
+            if (isFav) {
+                modalFavBtn.innerHTML = `<i class="fa-solid fa-heart text-red-500"></i><span class="text-red-600 font-bold">Đã yêu thích</span>`;
+            } else {
+                modalFavBtn.innerHTML = `<i class="fa-solid fa-heart text-slate-400"></i><span>Thêm vào yêu thích</span>`;
+            }
+
+            const modal = document.getElementById('detailModal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling background
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('detailModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal on click outside content
+        document.getElementById('detailModal').addEventListener('click', (e) => {
+            if (e.target.id === 'detailModal') {
+                closeModal();
+            }
+        });
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
